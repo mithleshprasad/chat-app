@@ -12,7 +12,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "https://humble-dollop-6xp4xjrvwrq355p7-5500.app.github.dev",  // Frontend URL
+        origin: "https://mithleshprasad.github.io/chat-app/",  // Frontend URL
         methods: ["GET", "POST"]
     }
 });
