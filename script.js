@@ -1,4 +1,4 @@
-const API_URL = "https://humble-dollop-6xp4xjrvwrq355p7-3000.app.github.dev/";
+const API_URL = "https://chat-app-6l0e.onrender.com";
 let socket = null;
 
 // Login
