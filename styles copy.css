@@ -15,6 +15,7 @@ body {
     height: 100vh;
 }
 
+/* Chat Container */
 .chat-container {
     width: 400px;
     background: #fff;
@@ -48,6 +49,7 @@ body {
     background: #fff;
 }
 
+/* Message Styles */
 .message {
     padding: 8px 12px;
     margin: 5px;
@@ -94,8 +96,7 @@ body {
     color: white;
     cursor: pointer;
 }
-
-.video-container {
+.video-call-container {
     display: flex;
     justify-content: center;
     margin-bottom: 10px;
@@ -108,45 +109,3 @@ video {
     margin: 5px;
     background: black;
 }
-
-.container {
-    text-align: center;
-}
-
-.login-box {
-    background: #29293d;
-    padding: 20px;
-    border-radius: 10px;
-    width: 300px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-h2, h3 {
-    margin-bottom: 10px;
-}
-
-input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    border: none;
-    background: #3a3a4f;
-    color: #fff;
-}
-
-button {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    background: #007bff;
-    color: #fff;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 70px;
-}
-
-button:hover {
-    background: #0056b3;
-}
-
