@@ -4,10 +4,11 @@ let socket = null;
 let localStream;
 let remoteStream;
 let peerConnection;
+let screenStream;
 
 const servers = {
     iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun.l.google.com:19302" }, // Free STUN server
     ],
 };
 
@@ -115,16 +116,62 @@ function logout() {
     window.location.replace("index.html");
 }
 
+// Start Video Call
 async function startCall() {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    document.getElementById("localVideo").srcObject = localStream;
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById("localVideo").srcObject = localStream;
 
-    await createPeerConnection();
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    socket.emit("offer", offer, socket.id);
+        await createPeerConnection();
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        socket.emit("offer", offer, socket.id);
+
+        // Show/Hide buttons
+        document.getElementById("startCallButton").style.display = "none";
+        document.getElementById("stopCallButton").style.display = "inline-block";
+    } catch (error) {
+        console.error("Error starting call:", error);
+    }
 }
 
+// Stop Video Call
+function stopCall() {
+    if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+    }
+    if (remoteStream) {
+        remoteStream.getTracks().forEach(track => track.stop());
+    }
+    if (peerConnection) {
+        peerConnection.close();
+    }
+    document.getElementById("localVideo").srcObject = null;
+    document.getElementById("remoteVideo").srcObject = null;
+
+    // Show/Hide buttons
+    document.getElementById("startCallButton").style.display = "inline-block";
+    document.getElementById("stopCallButton").style.display = "none";
+}
+
+// Share Screen
+async function shareScreen() {
+    try {
+        screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        const screenTrack = screenStream.getVideoTracks()[0];
+
+        // Replace local video track with screen share track
+        const sender = peerConnection.getSenders().find(s => s.track.kind === "video");
+        if (sender) sender.replaceTrack(screenTrack);
+
+        // Show screen share in local video element
+        document.getElementById("localVideo").srcObject = screenStream;
+    } catch (error) {
+        console.error("Error sharing screen:", error);
+    }
+}
+
+// Create Peer Connection
 async function createPeerConnection() {
     peerConnection = new RTCPeerConnection(servers);
 
