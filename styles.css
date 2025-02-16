@@ -8,22 +8,24 @@
 }
 
 body {
-    background: #f4f4f4;
+    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
     padding: 20px;
 }
 
 /* Chat Container */
 .chat-container {
     width: 100%;
-    max-width: 400px;
-    background: #fff;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px #aaa;
+    max-width: 420px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Chat Header */
@@ -31,18 +33,24 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #007bff;
+    background: linear-gradient(135deg, #6A11CB, #2575FC);
     color: white;
-    padding: 10px;
-    border-radius: 5px;
+    padding: 12px;
+    border-radius: 8px;
 }
 
 .logout-btn {
-    background: red;
+    background: #ff4b5c;
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 6px 12px;
     cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s ease-in-out;
+}
+
+.logout-btn:hover {
+    background: #e04350;
 }
 
 /* Chat Box */
@@ -50,56 +58,72 @@ body {
     max-height: 400px;
     overflow-y: auto;
     padding: 10px;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin: 10px 0;
+    box-shadow: inset 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Messages */
 .message {
-    padding: 8px 12px;
-    margin: 5px;
+    padding: 10px;
+    margin: 6px;
     max-width: 80%;
-    border-radius: 10px;
-    display: block;
+    border-radius: 15px;
+    display: inline-block;
     clear: both;
     position: relative;
+    font-size: 14px;
 }
 
 .sent {
-    background-color: #dcf8c6;
+    background: #dcf8c6;
     text-align: right;
     float: right;
-    border-radius: 15px 15px 0 15px;
+    border-radius: 20px 20px 5px 20px;
 }
 
 .received {
-    background-color: #f1f1f1;
+    background: #f1f1f1;
     text-align: left;
     float: left;
-    border-radius: 15px 15px 15px 0;
+    border-radius: 20px 20px 20px 5px;
 }
 
 /* Chat Input */
 .chat-input {
     display: flex;
+    align-items: center;
     padding: 10px;
-    border-top: 2px solid #29293d;
+    border-top: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
 }
 
 .chat-input input {
     flex: 1;
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, 0.4);
+    color: #333;
+    font-size: 14px;
 }
 
 .chat-input button {
-    margin-left: 5px;
-    padding: 8px 12px;
-    border-radius: 5px;
+    margin-left: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
     border: none;
-    background: #007bff;
+    background: #2575FC;
     color: white;
     cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.chat-input button:hover {
+    background: #1a5bc4;
 }
 
 /* Video Elements */
@@ -112,22 +136,25 @@ body {
 
 video {
     width: 100%;
-    max-width: 300px;
+    max-width: 350px;
     height: auto;
-    border-radius: 10px;
+    border-radius: 12px;
     margin: 10px;
     background: black;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 /* Buttons */
 button {
     margin: 5px;
-    padding: 8px 12px;
-    border-radius: 5px;
+    padding: 10px 15px;
+    border-radius: 8px;
     border: none;
     background: #007bff;
     color: white;
     cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s ease-in-out;
 }
 
 button:hover {
@@ -136,12 +163,14 @@ button:hover {
 
 /* Login Box */
 .login-box {
-    background: #29293d;
+    background: rgba(41, 41, 61, 0.9);
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 12px;
     width: 100%;
-    max-width: 300px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    max-width: 320px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    color: white;
+    text-align: center;
 }
 
 h2, h3 {
@@ -150,15 +179,46 @@ h2, h3 {
 
 input {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin: 10px 0;
-    border-radius: 5px;
+    border-radius: 8px;
     border: none;
-    background: #3a3a4f;
-    color: #fff;
+    outline: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 14px;
+    text-align: center;
 }
 
-/* Media Queries for Mobile Responsiveness */
+input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Notification Icon */
+.notification-container {
+    position: relative;
+    cursor: pointer;
+}
+
+.bell-icon {
+    font-size: 24px;
+    color: white;
+}
+
+.notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 50%;
+    display: none;
+}
+
+/* Responsive Design */
 @media (max-width: 600px) {
     body {
         padding: 10px;
@@ -175,7 +235,7 @@ input {
     }
 
     .message {
-        max-width: 90%; /* Allow messages to take more width on small screens */
+        max-width: 90%;
     }
 
     .video-container {
@@ -206,23 +266,4 @@ input {
         margin-left: 0;
         width: 100%;
     }
-}
-.notification {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #fff;
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-}
-
-.notification button {
-    margin: 5px;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
 }
