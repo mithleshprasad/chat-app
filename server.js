@@ -99,39 +99,7 @@ io.on("connection", (socket) => {
         io.emit("chatMessage", { user: data.user, message: data.message });
     });
 
-    // Handle WebRTC Signaling
-    socket.on("offer", (offer, targetUser) => {
-        console.log(`Sending offer to ${targetUser}`);
-        socket.to(targetUser).emit("offer", offer, socket.id);
-    });
 
-    socket.on("answer", (answer, targetUser) => {
-        console.log(`Sending answer to ${targetUser}`);
-        socket.to(targetUser).emit("answer", answer, socket.id);
-    });
-
-    socket.on("ice-candidate", (candidate, targetUser) => {
-        console.log(`Sending ICE candidate to ${targetUser}`);
-        socket.to(targetUser).emit("ice-candidate", candidate, socket.id);
-    });
-
-    // Handle call acceptance
-    socket.on("accept-call", (targetUser) => {
-        console.log(`Call accepted by ${targetUser}`);
-        socket.to(targetUser).emit("call-accepted");
-    });
-
-    // Handle call rejection
-    socket.on("reject-call", (targetUser) => {
-        console.log(`Call rejected by ${targetUser}`);
-        socket.to(targetUser).emit("call-rejected");
-    });
-
-    // Handle screen share notification
-    socket.on("screen-share-started", (targetUser) => {
-        console.log(`Screen share started by ${socket.id}`);
-        socket.to(targetUser).emit("screen-share-started", socket.id);
-    });
 });
 
 // Start Server
