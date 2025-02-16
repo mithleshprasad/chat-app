@@ -1,10 +1,12 @@
 const API_URL = "https://chat-app-6l0e.onrender.com";
 // const API_URL = "http://localhost:3000";
+
 let socket = null;
 let localStream;
 let remoteStream;
 let peerConnection;
 let screenStream;
+let isCalling = false;
 
 const servers = {
     iceServers: [
@@ -13,6 +15,7 @@ const servers = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Login and Register Logic
     document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
         e.preventDefault();
         const username = document.getElementById("loginUsername").value.trim();
@@ -47,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(data.message || data.error);
     });
 
+    // Chat and Video Call Logic
     if (window.location.pathname.includes("chat.html")) {
         const token = localStorage.getItem("token");
         const username = localStorage.getItem("username");
@@ -54,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         socket = io.connect(API_URL, { auth: { token } });
 
-        // Fetch previous messages when chat loads
+        // Fetch previous messages
         fetch(`${API_URL}/messages`)
             .then(res => res.json())
             .then(messages => {
@@ -68,27 +72,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // WebRTC Signaling
         socket.on("offer", async (offer, fromSocketId) => {
-            await createPeerConnection();
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-            socket.emit("answer", answer, fromSocketId);
+            console.log("Received offer from:", fromSocketId);
+            showNotification(`Incoming call from ${fromSocketId}`, fromSocketId);
         });
 
         socket.on("answer", async (answer) => {
+            console.log("Received answer:", answer);
             await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
         });
 
         socket.on("ice-candidate", async (candidate) => {
+            console.log("Received ICE candidate:", candidate);
             try {
                 await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
             } catch (error) {
                 console.error("Error adding ICE candidate:", error);
             }
         });
+
+        socket.on("call-accepted", () => {
+            console.log("Call accepted by the other user");
+            // Proceed with the call setup
+        });
+
+        socket.on("call-rejected", () => {
+            console.log("Call rejected by the other user");
+            alert("Call rejected");
+            stopCall(); // End the call
+        });
+
+        socket.on("screen-share-started", (fromSocketId) => {
+            console.log(`${fromSocketId} started screen sharing`);
+            showNotification(`${fromSocketId} started screen sharing`, fromSocketId);
+        });
     }
 });
 
+// Helper Functions
 function sendMessage() {
     const message = document.getElementById("messageInput").value.trim();
     const user = localStorage.getItem("username");
@@ -116,26 +136,33 @@ function logout() {
     window.location.replace("index.html");
 }
 
-// Start Video Call
+// WebRTC Functions
 async function startCall() {
     try {
+        // Get local media stream (camera and microphone)
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         document.getElementById("localVideo").srcObject = localStream;
 
+        // Create and configure the PeerConnection
         await createPeerConnection();
+
+        // Create an offer and set it as the local description
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
+        console.log("Sending offer to:", socket.id);
+
+        // Send the offer to the remote peer via signaling
         socket.emit("offer", offer, socket.id);
 
         // Show/Hide buttons
         document.getElementById("startCallButton").style.display = "none";
         document.getElementById("stopCallButton").style.display = "inline-block";
+        isCalling = true;
     } catch (error) {
         console.error("Error starting call:", error);
     }
 }
 
-// Stop Video Call
 function stopCall() {
     if (localStream) {
         localStream.getTracks().forEach(track => track.stop());
@@ -152,45 +179,109 @@ function stopCall() {
     // Show/Hide buttons
     document.getElementById("startCallButton").style.display = "inline-block";
     document.getElementById("stopCallButton").style.display = "none";
+    isCalling = false;
 }
 
-// Share Screen
 async function shareScreen() {
     try {
+        // Check if peerConnection exists and is open
+        if (!peerConnection || peerConnection.connectionState === "closed") {
+            console.error("PeerConnection is not initialized or is closed. Start a call first.");
+            return;
+        }
+
+        // Get screen stream
         screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
         const screenTrack = screenStream.getVideoTracks()[0];
+        console.log("Screen track:", screenTrack);
 
-        // Replace local video track with screen share track
-        const sender = peerConnection.getSenders().find(s => s.track.kind === "video");
-        if (sender) sender.replaceTrack(screenTrack);
+        // Replace the existing video track with the screen track
+        const sender = peerConnection.getSenders().find(s => s.track?.kind === "video");
+        if (sender) {
+            console.log("Replacing video track with screen track");
+            await sender.replaceTrack(screenTrack);
+        } else {
+            console.error("No video sender found in PeerConnection.");
+        }
 
-        // Show screen share in local video element
+        // Show the screen share in the local video element
         document.getElementById("localVideo").srcObject = screenStream;
+
+        // Notify the other user
+        socket.emit("screen-share-started", socket.id);
     } catch (error) {
         console.error("Error sharing screen:", error);
     }
 }
 
-// Create Peer Connection
 async function createPeerConnection() {
-    peerConnection = new RTCPeerConnection(servers);
+    try {
+        // Create a new RTCPeerConnection
+        peerConnection = new RTCPeerConnection(servers);
 
-    remoteStream = new MediaStream();
-    document.getElementById("remoteVideo").srcObject = remoteStream;
+        // Create a remote stream and set it to the remote video element
+        remoteStream = new MediaStream();
+        document.getElementById("remoteVideo").srcObject = remoteStream;
 
-    localStream.getTracks().forEach(track => {
-        peerConnection.addTrack(track, localStream);
-    });
-
-    peerConnection.ontrack = (event) => {
-        event.streams[0].getTracks().forEach(track => {
-            remoteStream.addTrack(track);
+        // Add local tracks to the PeerConnection
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
         });
+
+        // Handle incoming remote tracks
+        peerConnection.ontrack = (event) => {
+            console.log("Received remote track:", event.track);
+            event.streams[0].getTracks().forEach(track => {
+                remoteStream.addTrack(track);
+            });
+        };
+
+        // Handle ICE candidates
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                console.log("Sending ICE candidate:", event.candidate);
+                socket.emit("ice-candidate", event.candidate, socket.id);
+            }
+        };
+
+        // Log ICE connection state changes
+        peerConnection.oniceconnectionstatechange = () => {
+            console.log("ICE connection state:", peerConnection.iceConnectionState);
+        };
+
+        // Log PeerConnection state changes
+        peerConnection.onconnectionstatechange = () => {
+            console.log("Connection state:", peerConnection.connectionState);
+        };
+    } catch (error) {
+        console.error("Error creating PeerConnection:", error);
+    }
+}
+
+// Notification Functions
+function showNotification(message, fromSocketId) {
+    const notification = document.getElementById("notification");
+    const notificationMessage = document.getElementById("notification-message");
+    notificationMessage.textContent = message;
+    notification.style.display = "block";
+
+    document.getElementById("accept-call").onclick = () => {
+        acceptCall(fromSocketId);
+        notification.style.display = "none";
     };
 
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-            socket.emit("ice-candidate", event.candidate, socket.id);
-        }
+    document.getElementById("reject-call").onclick = () => {
+        rejectCall(fromSocketId);
+        notification.style.display = "none";
     };
+}
+
+function acceptCall(fromSocketId) {
+    createPeerConnection().then(() => {
+        socket.emit("accept-call", fromSocketId);
+    });
+}
+
+function rejectCall(fromSocketId) {
+    socket.emit("reject-call", fromSocketId);
 }
