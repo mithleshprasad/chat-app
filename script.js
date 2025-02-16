@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000";
+const API_URL = "https://chat-app-6l0e.onrender.com";
 let socket = null;
 let localStream;
 
