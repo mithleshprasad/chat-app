@@ -74,54 +74,54 @@ app.get("/messages", async (req, res) => {
 
 const onlineUsers = new Map();
 
-// io.on("connection", (socket) => {
-//     const { room } = socket.handshake.auth;
-//     console.log(`✅ User connected: ${socket.id} to room: ${room}`);
-
-//     // Add user to online users
-//     onlineUsers.set(socket.id, room);
-//     updateOnlineUsers(room);
-
-//     socket.on("disconnect", () => {
-//         console.log(`❌ User disconnected: ${socket.id}`);
-//         onlineUsers.delete(socket.id);
-//         updateOnlineUsers(room);
-//     });
-
-//     socket.on("chatMessage", async (data) => {
-//         if (!data.user || !data.message || !data.room) return;
-//         const newMessage = new Message({ user: data.user, message: data.message, room: data.room });
-//         await newMessage.save();
-//         io.to(data.room).emit("chatMessage", { user: data.user, message: data.message });
-//     });
-
-//     socket.join(room);
-// });
-// Server-side (Node.js with Socket.IO)
 io.on("connection", (socket) => {
-    const room = socket.handshake.auth.room;
-    const username = socket.handshake.auth.username;
+    const { room } = socket.handshake.auth;
+    console.log(`✅ User connected: ${socket.id} to room: ${room}`);
 
-    socket.join(room);
-
-    // Notify all users in the room about the new connection
-    io.to(room).emit("onlineUsers", {
-        count: io.sockets.adapter.rooms.get(room)?.size || 0,
-        users: Array.from(io.sockets.adapter.rooms.get(room) || []).map(id => io.sockets.sockets.get(id)?.handshake.auth.username)
-    });
+    // Add user to online users
+    onlineUsers.set(socket.id, room);
+    updateOnlineUsers(room);
 
     socket.on("disconnect", () => {
-        // Notify all users in the room about the disconnection
-        io.to(room).emit("onlineUsers", {
-            count: io.sockets.adapter.rooms.get(room)?.size || 0,
-            users: Array.from(io.sockets.adapter.rooms.get(room) || []).map(id => io.sockets.sockets.get(id)?.handshake.auth.username)
-        });
+        console.log(`❌ User disconnected: ${socket.id}`);
+        onlineUsers.delete(socket.id);
+        updateOnlineUsers(room);
     });
+
+    socket.on("chatMessage", async (data) => {
+        if (!data.user || !data.message || !data.room) return;
+        const newMessage = new Message({ user: data.user, message: data.message, room: data.room });
+        await newMessage.save();
+        io.to(data.room).emit("chatMessage", { user: data.user, message: data.message });
+    });
+
+    socket.join(room);
 });
-function updateOnlineUsers(room) {
-    const usersInRoom = Array.from(onlineUsers.values()).filter(r => r === room).length;
-    io.to(room).emit("onlineUsers", usersInRoom);
-}
+// Server-side (Node.js with Socket.IO)
+// io.on("connection", (socket) => {
+//     const room = socket.handshake.auth.room;
+//     const username = socket.handshake.auth.username;
+
+//     socket.join(room);
+
+//     // Notify all users in the room about the new connection
+//     io.to(room).emit("onlineUsers", {
+//         count: io.sockets.adapter.rooms.get(room)?.size || 0,
+//         users: Array.from(io.sockets.adapter.rooms.get(room) || []).map(id => io.sockets.sockets.get(id)?.handshake.auth.username)
+//     });
+
+//     socket.on("disconnect", () => {
+//         // Notify all users in the room about the disconnection
+//         io.to(room).emit("onlineUsers", {
+//             count: io.sockets.adapter.rooms.get(room)?.size || 0,
+//             users: Array.from(io.sockets.adapter.rooms.get(room) || []).map(id => io.sockets.sockets.get(id)?.handshake.auth.username)
+//         });
+//     });
+// });
+// function updateOnlineUsers(room) {
+//     const usersInRoom = Array.from(onlineUsers.values()).filter(r => r === room).length;
+//     io.to(room).emit("onlineUsers", usersInRoom);
+// }
 
 const PORT = 3000;
 server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
