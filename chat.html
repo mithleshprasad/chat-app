@@ -3,23 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat & Video Call</title>
+    <title>Chat Room</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <h2>Chat Room</h2>
-            
-            <button class="logout-btn" onclick="logout()">Logout</button>
+            <div class="header-left">
+                <!-- <img id="profileImage" class="profile-pic" src="user-image.jpg" onerror="this.onerror=null; this.src='default-profile.png';" alt="Profile"> -->
+                <div class="profile-container">
+                    <img id="profileImage" src="user-image.jpg" onerror="this.style.display='none'; document.getElementById('defaultIcon').style.display='block';">
+                    <i id="defaultIcon" class="fas fa-user-circle" style="display:none; font-size: 50px; color: gray;"></i>
+                </div>
+                
+               
+                <div class="room-info">
+                    <h2 id="roomName">Chat Room</h2>
+                    <p>Online: <span id="onlineUsersCount">0</span></p>
+                </div>
+            </div>
+            <div class="header-right">
+                <i class="icon video-call">&#128247;</i>
+                <i class="icon settings">&#9881;</i>
+                <!-- <button class="logout-btn" onclick="logout()">Logout</button> -->
+                 <button class="logout-btn" onclick="logout()">
+                    <i class="fa-solid fa-arrow-right"></i>
+    
+</button>
+
+            </div>
         </div>
+        
+        <!-- <div class="chat-header">
+            <h2>Room: <span id="roomName"></span></h2>
+            <p>Online Users: <span id="onlineUsersCount">0</span></p>
+            <p>Users: <span id="userNameList"></span></p>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div> -->
         <div class="chat-box" id="chatBox"></div>
         <div class="chat-input">
             <input type="text" id="messageInput" placeholder="Type a message" required>
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
-    <script src="script.js"></script>
+    <script src="chat.js"></script>
 </body>
 </html>
