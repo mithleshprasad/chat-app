@@ -6,7 +6,6 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
@@ -118,10 +117,10 @@ io.on("connection", (socket) => {
 //         });
 //     });
 // });
-// function updateOnlineUsers(room) {
-//     const usersInRoom = Array.from(onlineUsers.values()).filter(r => r === room).length;
-//     io.to(room).emit("onlineUsers", usersInRoom);
-// }
+function updateOnlineUsers(room) {
+    const usersInRoom = Array.from(onlineUsers.values()).filter(r => r === room).length;
+    io.to(room).emit("onlineUsers", usersInRoom);
+}
 
 const PORT = 3000;
 server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
